@@ -37,6 +37,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // CRUD Categories
     Route::resource('categories', CategoryController::class);
+    // CRUD Orders & Order Items
+Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+Route::resource('order_items', \App\Http\Controllers\Admin\OrderItemController::class);
+
 });
 
 // User routes

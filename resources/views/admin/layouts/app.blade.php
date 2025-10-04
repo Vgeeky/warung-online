@@ -15,7 +15,7 @@
 
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-                @include('admin.layouts.header')
+                @include('admin.layouts.topbar')
 
                 <div class="container-fluid">
                     @yield('content')
