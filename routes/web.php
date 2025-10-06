@@ -18,16 +18,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Dashboard default Laravel (bisa dihapus jika ingin semua role pakai dashboard khusus)
+// Dashboard default Laravel (bisa dihapus kalau semua role punya dashboard sendiri)
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('user.dashboard'); // langsung arahkan ke dashboard user
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Admin routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+// ================= ADMIN =====================
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
 
     // Dashboard admin
-    Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // CRUD Product
     Route::resource('products', ProductController::class);
@@ -37,24 +40,38 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // CRUD Categories
     Route::resource('categories', CategoryController::class);
-    // CRUD Orders & Order Items
-Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
-Route::resource('order_items', \App\Http\Controllers\Admin\OrderItemController::class);
 
+    // CRUD Orders & Order Items
+    Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+    Route::resource('order_items', \App\Http\Controllers\Admin\OrderItemController::class);
 });
 
-// User routes
-Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+// ================= USER =====================
+Route::middleware(['auth', 'role:user'])
+    ->prefix('user')
+    ->name('user.')
+    ->group(function () {
 
     // Dashboard user
     Route::get('/dashboard', function () {
         return view('user.dashboard');
     })->name('dashboard');
 
-    // Tambahkan route user lain jika diperlukan
+    // contoh fitur user
+    Route::get('/orders', function () {
+        return view('user.orders');
+    })->name('orders');
+
+    Route::get('/wishlist', function () {
+        return view('user.wishlist');
+    })->name('wishlist');
+
+    Route::get('/cart', function () {
+        return view('user.cart');
+    })->name('cart');
 });
 
-// Profile routes (semua role)
+// ================= PROFILE (semua role) =====================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
