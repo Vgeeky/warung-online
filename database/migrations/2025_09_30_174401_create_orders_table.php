@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
 
             // Total harga pesanan
-            $table->decimal('total_price', 10, 2);
+            $table->decimal('total_price', 12, 2)->default(0);
 
             // Status pesanan: pending, processing, shipping, delivered, canceled
             $table->enum('status', ['pending', 'processing', 'shipping', 'delivered', 'canceled'])->default('pending');

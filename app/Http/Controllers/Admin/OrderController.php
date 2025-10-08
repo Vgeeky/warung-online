@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -23,14 +24,17 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required',
-            'total_amount' => 'required|numeric',
-            'status' => 'required|string',
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'status' => 'required|string|max:50',
         ]);
 
-        Order::create($request->all());
-        return redirect()->route('admin.orders.index')->with('success', 'Order created successfully');
+        DB::transaction(function () use ($validated) {
+            $validated['total_amount'] = 0;
+            Order::create($validated);
+        });
+
+        return redirect()->route('admin.orders.index')->with('success', 'Order berhasil dibuat.');
     }
 
     public function edit(Order $order)
@@ -41,19 +45,18 @@ class OrderController extends Controller
 
     public function update(Request $request, Order $order)
     {
-        $request->validate([
-            'user_id' => 'required',
-            'total_amount' => 'required|numeric',
-            'status' => 'required|string',
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'status' => 'required|string|max:50',
         ]);
 
-        $order->update($request->all());
-        return redirect()->route('admin.orders.index')->with('success', 'Order updated successfully');
+        $order->update($validated);
+        return redirect()->route('admin.orders.index')->with('success', 'Order berhasil diperbarui.');
     }
 
     public function destroy(Order $order)
     {
         $order->delete();
-        return redirect()->route('admin.orders.index')->with('success', 'Order deleted successfully');
+        return redirect()->route('admin.orders.index')->with('success', 'Order berhasil dihapus.');
     }
 }

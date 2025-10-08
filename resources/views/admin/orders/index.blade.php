@@ -1,38 +1,47 @@
 @extends('admin.layouts.app')
 
+@section('title', 'Daftar Orders')
+
 @section('content')
-<div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">Orders</h1>
-
-    <a href="{{ route('admin.orders.create') }}" class="btn btn-primary mb-3">Add Order</a>
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($orders as $order)
-                <tr>
-                    <td>{{ $order->id }}</td>
-                    <td>{{ $order->user->name ?? '-' }}</td>
-                    <td>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
-                    <td>{{ ucfirst($order->status) }}</td>
-                    <td>
-                        <a href="{{ route('admin.orders.edit', $order->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus order ini?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>📦 Daftar Orders</h3>
+  <a href="{{ route('admin.orders.create') }}" class="btn btn-primary">+ Tambah Order</a>
 </div>
+
+@if (session('success'))
+  <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+<table class="table table-bordered align-middle bg-white">
+  <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>User</th>
+      <th>Total (Rp)</th>
+      <th>Status</th>
+      <th>Dibuat</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    @forelse ($orders as $order)
+      <tr>
+        <td>{{ $order->id }}</td>
+        <td>{{ $order->user->name ?? 'Tidak ada' }}</td>
+        <td>{{ number_format($order->total_amount, 0, ',', '.') }}</td>
+        <td>{{ ucfirst($order->status) }}</td>
+        <td>{{ $order->created_at->format('d M Y H:i') }}</td>
+        <td>
+          <a href="{{ route('admin.orders.edit', $order->id) }}" class="btn btn-sm btn-warning">Edit</a>
+          <form action="{{ route('admin.orders.destroy', $order->id) }}" method="POST" class="d-inline">
+            @csrf @method('DELETE')
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hapus order ini?')">Hapus</button>
+          </form>
+        </td>
+      </tr>
+    @empty
+      <tr><td colspan="6" class="text-center">Belum ada data order</td></tr>
+    @endforelse
+  </tbody>
+</table>
 @endsection
