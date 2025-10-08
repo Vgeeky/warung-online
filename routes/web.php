@@ -2,9 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,70 +14,76 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Landing page
+// ===================== LANDING PAGE =====================
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Dashboard default Laravel (bisa dihapus kalau semua role punya dashboard sendiri)
+// ===================== DASHBOARD UMUM =====================
 Route::get('/dashboard', function () {
-    return redirect()->route('user.dashboard'); // langsung arahkan ke dashboard user
+    return redirect()->route('user.dashboard'); // arahkan ke dashboard user
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// ================= ADMIN =====================
+// ===================== ADMIN ROUTES =====================
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        // Dashboard Admin
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Dashboard admin
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        // CRUD Products
+        Route::resource('products', ProductController::class);
 
-    // CRUD Product
-    Route::resource('products', ProductController::class);
+        // CRUD Users
+        Route::resource('users', AdminUserController::class);
 
-    // CRUD Users
-    Route::resource('users', UserController::class);
+        // CRUD Categories
+        Route::resource('categories', CategoryController::class);
 
-    // CRUD Categories
-    Route::resource('categories', CategoryController::class);
+        // CRUD Orders & Order Items
+        Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
+        Route::resource('order_items', \App\Http\Controllers\Admin\OrderItemController::class);
+    });
 
-    // CRUD Orders & Order Items
-    Route::resource('orders', \App\Http\Controllers\Admin\OrderController::class);
-    Route::resource('order_items', \App\Http\Controllers\Admin\OrderItemController::class);
-});
-
-// ================= USER =====================
+// ===================== USER ROUTES =====================
 Route::middleware(['auth', 'role:user'])
     ->prefix('user')
     ->name('user.')
     ->group(function () {
+        // Dashboard User
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
 
-    // Dashboard user
-    Route::get('/dashboard', function () {
-        return view('user.dashboard');
-    })->name('dashboard');
+        // Produk dari admin yang bisa dilihat user
+        Route::get('/products', [UserController::class, 'products'])->name('products');
 
-    // contoh fitur user
-    Route::get('/orders', function () {
-        return view('user.orders');
-    })->name('orders');
+        // Pesanan User
+        Route::get('/orders', [UserController::class, 'orders'])->name('orders');
 
-    Route::get('/wishlist', function () {
-        return view('user.wishlist');
-    })->name('wishlist');
+        // Wishlist User
+        Route::get('/wishlist', [UserController::class, 'wishlist'])->name('wishlist');
+        Route::post('/wishlist/add/{id}', [UserController::class, 'addToWishlist'])->name('wishlist.add');
+        Route::post('/wishlist/remove/{id}', [UserController::class, 'removeFromWishlist'])->name('wishlist.remove');
 
-    Route::get('/cart', function () {
-        return view('user.cart');
-    })->name('cart');
-});
+        // Keranjang User
+        Route::get('/cart', [UserController::class, 'cart'])->name('cart');
+        Route::post('/cart/add/{id}', [UserController::class, 'addToCart'])->name('cart.add');
+        Route::post('/cart/remove/{id}', [UserController::class, 'removeFromCart'])->name('cart.remove');
+        Route::post('/cart/update/{id}', [UserController::class, 'updateCartQuantity'])->name('cart.update');
+        Route::post('/cart/checkout', [UserController::class, 'checkout'])->name('cart.checkout');
 
-// ================= PROFILE (semua role) =====================
+
+        // Profil User (tampilan sederhana)
+        Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    });
+
+// ===================== PROFILE (SEMUA ROLE) =====================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Auth routes
-require __DIR__.'/auth.php';
+
+// ===================== AUTH ROUTES =====================
+require __DIR__ . '/auth.php';

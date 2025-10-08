@@ -1,55 +1,56 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Keranjang Belanja') }}
-        </h2>
-    </x-slot>
+@extends('user.layout')
 
-    <div class="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
-            <h3 class="text-lg font-semibold mb-4">Produk di Keranjang 🛒</h3>
+@section('title', 'Keranjang')
 
-            <table class="min-w-full border border-gray-200 rounded-xl">
-                <thead class="bg-green-600 text-white">
-                    <tr>
-                        <th class="px-4 py-2">Produk</th>
-                        <th class="px-4 py-2">Harga</th>
-                        <th class="px-4 py-2">Jumlah</th>
-                        <th class="px-4 py-2">Subtotal</th>
-                        <th class="px-4 py-2">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-700">
-                    <tr>
-                        <td class="border px-4 py-2">Kopi Arabica</td>
-                        <td class="border px-4 py-2">Rp 50.000</td>
-                        <td class="border px-4 py-2">
-                            <input type="number" value="2" class="w-16 border rounded text-center">
-                        </td>
-                        <td class="border px-4 py-2">Rp 100.000</td>
-                        <td class="border px-4 py-2">
-                            <button class="px-3 py-1 bg-red-600 text-white rounded-lg">Hapus</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">T-Shirt Warung Online</td>
-                        <td class="border px-4 py-2">Rp 120.000</td>
-                        <td class="border px-4 py-2">
-                            <input type="number" value="1" class="w-16 border rounded text-center">
-                        </td>
-                        <td class="border px-4 py-2">Rp 120.000</td>
-                        <td class="border px-4 py-2">
-                            <button class="px-3 py-1 bg-red-600 text-white rounded-lg">Hapus</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+@section('content')
+<h1 class="text-2xl font-bold mb-6">🛒 Keranjang Belanja</h1>
 
-            <!-- Total -->
-            <div class="flex justify-between items-center mt-6">
-                <p class="text-lg font-bold">Total: Rp 220.000</p>
-                <button class="px-6 py-2 bg-green-600 text-white rounded-lg">Checkout</button>
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+@if(session('success'))
+    <div class="bg-green-100 text-green-700 p-3 rounded mb-4">{{ session('success') }}</div>
+@endif
+@if(session('error'))
+    <div class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ session('error') }}</div>
+@endif
+
+@if(empty($cart))
+    <p>Keranjang kosong.</p>
+@else
+    <table class="w-full bg-white rounded shadow">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="p-3 text-left">Produk</th>
+                <th class="p-3">Jumlah</th>
+                <th class="p-3">Harga</th>
+                <th class="p-3">Total</th>
+                <th class="p-3">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($cart as $item)
+                <tr class="border-b">
+                    <td class="p-3 flex items-center space-x-3">
+                        <img src="{{ asset('storage/' . $item['image']) }}" class="w-12 h-12 rounded">
+                        <span>{{ $item['name'] }}</span>
+                    </td>
+                    <td class="text-center">{{ $item['quantity'] }}</td>
+                    <td class="text-center">Rp {{ number_format($item['price'], 0, ',', '.') }}</td>
+                    <td class="text-center font-semibold">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</td>
+                    <td class="text-center">
+                        <form action="{{ route('user.cart.remove', $item['id']) }}" method="POST">
+                            @csrf
+                            <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Hapus</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <form action="{{ route('user.cart.checkout') }}" method="POST" class="mt-6 text-right">
+        @csrf
+        <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            Checkout Sekarang
+        </button>
+    </form>
+@endif
+@endsection

@@ -1,29 +1,32 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Wishlist') }}
-        </h2>
-    </x-slot>
+@extends('user.layout')
 
-    <div class="py-8 max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6">
-            <h3 class="text-lg font-semibold mb-4">Produk Favorit ❤️</h3>
+@section('title', 'Wishlist')
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-gray-100 p-4 rounded-lg shadow text-center">
-                    <img src="https://via.placeholder.com/150" class="mx-auto rounded-md mb-3">
-                    <h4 class="font-semibold">Sepatu Sneakers</h4>
-                    <p class="text-gray-600">Rp 350.000</p>
-                    <button class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg">Tambah ke Keranjang</button>
-                </div>
+@section('content')
+<h1 class="text-2xl font-bold mb-6">💖 Wishlist Kamu</h1>
 
-                <div class="bg-gray-100 p-4 rounded-lg shadow text-center">
-                    <img src="https://via.placeholder.com/150" class="mx-auto rounded-md mb-3">
-                    <h4 class="font-semibold">Headset Gaming</h4>
-                    <p class="text-gray-600">Rp 220.000</p>
-                    <button class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg">Tambah ke Keranjang</button>
-                </div>
-            </div>
-        </div>
+@if(session('success'))
+    <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
+        {{ session('success') }}
     </div>
-</x-app-layout>
+@endif
+
+@if(empty($wishlist))
+    <p>Kamu belum menambahkan produk ke wishlist.</p>
+@else
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        @foreach($wishlist as $item)
+            <div class="bg-white shadow-md rounded-lg p-4">
+                <img src="{{ asset('storage/' . $item['image']) }}" alt="{{ $item['name'] }}" class="w-full h-48 object-cover rounded-md mb-3">
+                <h2 class="text-lg font-semibold">{{ $item['name'] }}</h2>
+                <p class="text-gray-500 mb-2">Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
+
+                <form action="{{ route('user.wishlist.remove', $item['id']) }}" method="POST">
+                    @csrf
+                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Hapus</button>
+                </form>
+            </div>
+        @endforeach
+    </div>
+@endif
+@endsection
