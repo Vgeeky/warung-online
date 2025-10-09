@@ -1,47 +1,110 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Warung Online</title>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <style>
+        body {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card h3 {
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+        .btn-custom {
+            background-color: #ffc107;
+            color: #000;
+            font-weight: 600;
+        }
+        .btn-custom:hover {
+            background-color: #e0a800;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+    <div class="login-card text-center">
+        <h3>Login ke Warung Online</h3>
+        <p class="text-muted">Silakan masuk untuk melanjutkan</p>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+        <!-- Status session (misal: "Password berhasil direset") -->
+        @if (session('status'))
+            <div class="alert alert-success">{{ session('status') }}</div>
+        @endif
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+            <!-- Email -->
+            <div class="mb-3 text-start">
+                <label for="email" class="form-label">Email</label>
+                <input id="email" type="email" name="email" value="{{ old('email') }}"
+                       class="form-control @error('email') is-invalid @enderror" required autofocus>
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+            <!-- Password -->
+            <div class="mb-3 text-start">
+                <label for="password" class="form-label">Password</label>
+                <input id="password" type="password" name="password"
+                       class="form-control @error('password') is-invalid @enderror" required>
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+            <!-- Remember me -->
+            <div class="form-check mb-3 text-start">
+                <input type="checkbox" name="remember" id="remember_me" class="form-check-input">
+                <label class="form-check-label" for="remember_me">Ingat saya</label>
+            </div>
+
+            <!-- Tombol Login -->
+            <button type="submit" class="btn btn-custom w-100 mb-3">Masuk</button>
+
+            <!-- Link tambahan -->
+            <div class="d-flex justify-content-between">
+                @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" class="text-primary small">Lupa Password?</a>
+                @endif
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="text-primary small">Daftar Akun</a>
+                @endif
+            </div>
+        </form>
+
+        <hr class="my-4">
+
+        <a href="{{ url('/') }}" class="text-secondary small">
+            ← Kembali ke Halaman Utama
+        </a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
