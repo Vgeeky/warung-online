@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\Admin\UserController as AdminUserController; // ✅ alias untuk Admin
+use App\Http\Controllers\UserController; // ✅ untuk user biasa
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,7 +36,7 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('products', ProductController::class);
 
         // CRUD Users
-        Route::resource('users', AdminUserController::class);
+        Route::resource('users', AdminUserController::class); // ✅ pakai alias yang benar
 
         // CRUD Categories
         Route::resource('categories', CategoryController::class);
@@ -72,7 +72,6 @@ Route::middleware(['auth', 'role:user'])
         Route::post('/cart/update/{id}', [UserController::class, 'updateCartQuantity'])->name('cart.update');
         Route::post('/cart/checkout', [UserController::class, 'checkout'])->name('cart.checkout');
 
-
         // Profil User (tampilan sederhana)
         Route::get('/profile', [UserController::class, 'profile'])->name('profile');
     });
@@ -83,7 +82,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
 
 // ===================== AUTH ROUTES =====================
 require __DIR__ . '/auth.php';
