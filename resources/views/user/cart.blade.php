@@ -3,7 +3,7 @@
 @section('title', 'Keranjang')
 
 @section('content')
-<h1 class="text-3xl font-bold mb-8 text-center">🛒 Keranjang Belanja</h1>
+<h1 class="text-3xl font-bold mb-8 text-center">Keranjang Belanja</h1>
 
 @if(session('success'))
     <div class="bg-green-500/30 text-white p-3 rounded mb-4 text-center">{{ session('success') }}</div>
@@ -13,7 +13,7 @@
 @endif
 
 @if(empty($cart))
-    <p class="text-center text-white text-lg">Keranjang kamu kosong 😢</p>
+    <p class="text-center text-white text-lg">Keranjang kamu kosong</p>
 @else
     <div class="overflow-x-auto bg-white/10 backdrop-blur-md rounded-lg p-4">
         <table class="w-full text-white">

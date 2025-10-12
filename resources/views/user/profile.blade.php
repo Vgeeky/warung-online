@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg text-gray-100 border border-white/20">
     <h2 class="text-3xl font-bold mb-8 text-center text-yellow-300 tracking-wide">
-        👤 Profil Pengguna
+        Profil Pengguna
     </h2>
 
     <!-- Detail Profil -->

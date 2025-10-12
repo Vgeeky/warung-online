@@ -3,10 +3,10 @@
 @section('title', 'Pesanan')
 
 @section('content')
-<h1 class="text-3xl font-bold mb-8 text-center">📦 Riwayat Pesanan</h1>
+<h1 class="text-3xl font-bold mb-8 text-center">Riwayat Pesanan</h1>
 
 @if(empty($orders))
-    <p class="text-center text-white text-lg">Belum ada pesanan 😇</p>
+    <p class="text-center text-white text-lg">Belum ada pesanan</p>
 @else
     @foreach($orders as $order)
         <div class="bg-white/10 backdrop-blur-md p-5 rounded-lg shadow mb-6 text-white">

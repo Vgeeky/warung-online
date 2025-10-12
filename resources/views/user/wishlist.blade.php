@@ -3,7 +3,7 @@
 @section('title', 'Wishlist')
 
 @section('content')
-<h1 class="text-3xl font-bold mb-8 text-center">💖 Wishlist Kamu</h1>
+<h1 class="text-3xl font-bold mb-8 text-center">Wishlist Kamu</h1>
 
 @if(session('success'))
     <div class="bg-green-500/30 text-white p-3 rounded mb-4 text-center">
@@ -12,7 +12,7 @@
 @endif
 
 @if(empty($wishlist))
-    <p class="text-center text-white text-lg">Kamu belum menambahkan produk ke wishlist 😅</p>
+    <p class="text-center text-white text-lg">Kamu belum menambahkan produk ke wishlist</p>
 @else
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         @foreach($wishlist as $item)
