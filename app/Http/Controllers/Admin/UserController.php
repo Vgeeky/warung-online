@@ -1,77 +1,104 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Order;
+use App\Models\OrderItem;
 
 class UserController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan halaman keranjang.
+     */
+    public function cart()
     {
-        $users = User::where('role', 'user')->latest()->paginate(10); // hanya user biasa
-        return view('admin.users.index', compact('users'));
+        $cart = session('cart', []);
+        return view('user.cart', compact('cart'));
     }
 
-    public function create()
+    /**
+     * Menambahkan produk ke keranjang.
+     */
+    public function addToCart(Request $request, $id)
     {
-        return view('admin.users.create');
-    }
+        $product = \App\Models\Product::findOrFail($id);
+        $cart = session('cart', []);
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name'=>'required|string|max:100',
-            'email'=>'required|email|unique:users,email',
-            'password'=>'required|string|min:6|confirmed',
-        ]);
-
-        User::create([
-            'name'=>$request->name,
-            'email'=>$request->email,
-            'password'=>Hash::make($request->password),
-            'role'=>'user',
-        ]);
-
-        return redirect()->route('admin.users.index')->with('success','User created.');
-    }
-
-    public function edit(User $user)
-    {
-        if($user->role !== 'user') abort(403); // admin tidak bisa edit admin lain
-        return view('admin.users.edit', compact('user'));
-    }
-
-    public function update(Request $request, User $user)
-    {
-        if($user->role !== 'user') abort(403);
-
-        $request->validate([
-            'name'=>'required|string|max:100',
-            'email'=>'required|email|unique:users,email,'.$user->id,
-            'password'=>'nullable|string|min:6|confirmed',
-        ]);
-
-        $data = [
-            'name'=>$request->name,
-            'email'=>$request->email,
-        ];
-
-        if($request->filled('password')){
-            $data['password'] = Hash::make($request->password);
+        if (isset($cart[$id])) {
+            $cart[$id]['quantity'] += $request->input('quantity', 1);
+        } else {
+            $cart[$id] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => $request->input('quantity', 1),
+                'image' => $product->image_url ?? $product->image ?? null,
+            ];
         }
 
-        $user->update($data);
-
-        return redirect()->route('admin.users.index')->with('success','User updated.');
+        session(['cart' => $cart]);
+        return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 
-    public function destroy(User $user)
+    /**
+     * Menghapus item dari keranjang.
+     */
+    public function removeFromCart($id)
     {
-        if($user->role !== 'user') abort(403);
-        $user->delete();
-        return redirect()->route('admin.users.index')->with('success','User deleted.');
+        $cart = session('cart', []);
+        unset($cart[$id]);
+        session(['cart' => $cart]);
+        return back()->with('success', 'Produk berhasil dihapus dari keranjang.');
+    }
+
+    /**
+     * Proses checkout — membuat pesanan baru dari isi keranjang.
+     */
+    public function checkout(Request $request)
+    {
+        $cart = session('cart', []);
+
+        if (empty($cart)) {
+            return back()->with('error', 'Keranjang kosong!');
+        }
+
+        // Hitung total harga
+        $total = collect($cart)->sum(fn($item) => ($item['price'] ?? 0) * ($item['quantity'] ?? 0));
+
+        // Simpan ke tabel orders
+        $order = Order::create([
+    'user_id' => auth()->id(),
+    'total_price' => $total, // ✅ ganti dari 'total' jadi 'total_price'
+    'status' => 'pending',
+    'shipping_address' => $request->input('shipping_address', 'Alamat belum diisi'),
+    'city' => $request->input('city', 'Kota belum diisi'),
+    'postal_code' => $request->input('postal_code', '00000'),
+]);
+
+
+        // Simpan detail item ke order_items (jika tabel dan model tersedia)
+        foreach ($cart as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item['id'] ?? null,
+                'quantity' => $item['quantity'] ?? 1,
+                'price' => $item['price'] ?? 0,
+            ]);
+        }
+
+        // Kosongkan keranjang
+        session()->forget('cart');
+
+        return redirect()->route('user.orders')->with('success', 'Pesanan berhasil dibuat!');
+    }
+
+    /**
+     * Menampilkan daftar pesanan pengguna.
+     */
+    public function orders()
+    {
+        $orders = Order::where('user_id', auth()->id())->latest()->get();
+        return view('user.orders', compact('orders'));
     }
 }

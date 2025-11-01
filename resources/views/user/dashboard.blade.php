@@ -154,7 +154,8 @@
         <div class="grid">
             @forelse($products as $product)
                 <div class="product-card">
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                    {{-- ✅ gunakan variabel yang benar --}}
+                    <img src="{{ asset('storage/' . $product->image_url) }}" alt="{{ $product->name }}">
                     <h2>{{ $product->name }}</h2>
                     <p class="mb-3">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
 

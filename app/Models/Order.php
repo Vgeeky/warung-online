@@ -11,8 +11,11 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'total_amount',
+        'total_price',      // ✅ sesuai kolom di migration
         'status',
+        'shipping_address', // ✅ tambahkan
+        'city',             // ✅ tambahkan
+        'postal_code',      // ✅ tambahkan
     ];
 
     public function user()
