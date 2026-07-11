@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'processing', 'shipping', 'delivered', 'canceled'])->default('pending');
 
             // Alamat pengiriman
-            $table->string('shipping_address');
+            $table->string('shipping_address')->nullable();
             $table->string('city');
             $table->string('postal_code', 10);
 

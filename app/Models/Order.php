@@ -9,22 +9,31 @@ class Order extends Model
 {
     use HasFactory;
 
+    protected $table = 'orders';
+
     protected $fillable = [
+
         'user_id',
-        'total_price',      // ✅ sesuai kolom di migration
+
+        'customer_name',
+
+        'table_number',
+
+        'total_price',
+
         'status',
-        'shipping_address', // ✅ tambahkan
-        'city',             // ✅ tambahkan
-        'postal_code',      // ✅ tambahkan
+
+        'shipping_address',
+
+        'city',
+
+        'postal_code',
+
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $casts = [
 
-    public function items()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
+        'total_price' => 'integer',
+
+    ];
 }

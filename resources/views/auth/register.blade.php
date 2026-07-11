@@ -91,14 +91,6 @@
                 @enderror
             </div>
 
-            <!-- Role -->
-            <div class="mb-3 text-start">
-                <label for="role" class="form-label">Pilih Role</label>
-                <select id="role" name="role" class="form-select" required>
-                    <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
-                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                </select>
-            </div>
 
             <!-- Tombol Register -->
             <button type="submit" class="btn btn-custom w-100 mb-3">Daftar</button>

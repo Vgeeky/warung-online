@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController; // ✅ alias untuk Admin
 use App\Http\Controllers\UserController; // ✅ untuk user biasa
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\SettingController;   
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,9 +22,8 @@ Route::get('/', function () {
 });
 
 // ===================== DASHBOARD UMUM =====================
-Route::get('/dashboard', function () {
-    return redirect()->route('user.dashboard'); // arahkan ke dashboard user
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [UserController::class, 'dashboard'])
+    ->name('dashboard');
 
 // ===================== ADMIN ROUTES =====================
 Route::middleware(['auth', 'role:admin'])
@@ -47,13 +48,10 @@ Route::middleware(['auth', 'role:admin'])
     });
 
 // ===================== USER ROUTES =====================
-Route::middleware(['auth', 'role:user'])
-    ->prefix('user')
+Route::prefix('user')
     ->name('user.')
     ->group(function () {
         // Dashboard User
-        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
-
         // Produk dari admin yang bisa dilihat user
         Route::get('/products', [UserController::class, 'products'])->name('products');
 
@@ -74,13 +72,59 @@ Route::middleware(['auth', 'role:user'])
 
         // Profil User (tampilan sederhana)
         Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+
+        Route::post('/order-again/{id}', [UserController::class, 'orderAgain'])
+            ->name('orderAgain');
     });
 
+    
+    // ===================== HISTORY LOGIN ONLY =====================
+    Route::middleware('auth')
+        ->prefix('user')
+        ->name('user.')
+        ->group(function () {
+
+            Route::get('/history', [UserController::class, 'history'])
+                ->name('history');
+
+        });
 // ===================== PROFILE (SEMUA ROLE) =====================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/settings/qris', [SettingController::class, 'editQRIS'])->name('admin.qris.edit');
+    Route::post('/admin/settings/qris', [SettingController::class, 'updateQRIS'])->name('admin.qris.update');
+});
+
+Route::post('/user/orders/{order}/confirm', [UserController::class, 'confirmPayment'])->name('user.confirm.payment');
+
+Route::middleware(['auth', 'is_admin'])->group(function () {
+    Route::get('/admin/setting', [\App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('admin.setting');
+    Route::post('/admin/setting', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.setting.update');
+});
+
+Route::get('/checkout', [CheckoutController::class, 'showCheckoutPage'])->name('checkout.page');
+Route::post('/save-order-data', [CheckoutController::class, 'saveOrderData']);
+
+Route::post('/payment-success/{id}', function ($id) {
+
+    $order = \App\Models\Order::find($id);
+
+    if ($order) {
+
+        $order->status = 'paid';
+
+        $order->save();
+
+    }
+
+    return response()->json([
+        'success' => true
+    ]);
 });
 
 // ===================== AUTH ROUTES =====================

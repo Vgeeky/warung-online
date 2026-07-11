@@ -38,24 +38,22 @@
         <div class="container">
             <h1 class="fw-bold">Selamat Datang di Warung Online</h1>
             <p class="lead">Tempat belanja kebutuhan sehari-hari dengan mudah dan cepat</p>
-            <a href="{{ route('login') }}" class="btn btn-custom btn-lg mt-3">Mulai Sekarang</a>
+            <a href="{{ route('dashboard') }}" class="btn btn-custom btn-lg mt-3">Mulai Sekarang</a>
         </div>
     </section>
 
     <section class="container text-center mt-5">
-        <h2 class="mb-4">Kenapa pilih kami?</h2>
-        <div class="row">
-            <div class="col-md-4">
+        <h2 class="mb-4">Kenapa Pilih Kami?</h2>
+
+        <div class="row justify-content-center">
+            <div class="col-md-4 mb-4">
                 <h5>🛒 Produk Lengkap</h5>
-                <p>Tersedia berbagai kebutuhan rumah tangga, minuman, dan snack.</p>
+                <p>Tersedia berbagai makanan, minuman, dan snack.</p>
             </div>
-            <div class="col-md-4">
-                <h5>🚚 Pengiriman Cepat</h5>
-                <p>Pesanan diantar langsung ke rumah Anda dengan cepat dan aman.</p>
-            </div>
-            <div class="col-md-4">
+
+            <div class="col-md-4 mb-4">
                 <h5>💳 Pembayaran Mudah</h5>
-                <p>Bayar dengan metode yang Anda sukai, dari transfer hingga e-wallet.</p>
+                <p>Bayar dengan metode yang Anda sukai, mulai dari transfer bank hingga e-wallet.</p>
             </div>
         </div>
     </section>
